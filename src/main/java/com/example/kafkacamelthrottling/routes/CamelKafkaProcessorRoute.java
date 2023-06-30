@@ -7,17 +7,26 @@ import org.springframework.stereotype.Component;
 @Component
 public class CamelKafkaProcessorRoute extends RouteBuilder {
 
+    @Value("${camel.kafka.routes.inputRoute.url}")
+    private String inputRouteURI;
+
+    @Value("${camel.kafka.routes.rateLimiterRoute.url}")
+    private String rateLimiterRouteURI;
+
     @Value("${route.throttling.throttleRate}")
     private int throttleRate;
+
+    @Value("${route.throttling.timePeriodMillis}")
+    private int timePeriodMillis;
 
     @Override
     public void configure() throws Exception {
 
-        from("kafka:input?brokers=localhost:9092&autoOffsetReset=earliest")
+        from(inputRouteURI)
                 .routeId("input-topic-consume-route")
                 .process(exchange -> exchange.getIn().setHeader("throttleRate", throttleRate))
                 .log("on the topic ${headers[throttleRate]}")
-                .throttle().expression(header("throttleRate")).timePeriodMillis(10000)
+                .throttle().expression(header("throttleRate")).timePeriodMillis(timePeriodMillis)
                 .log("Message received from Kafka: ${body}");
 /*                .log("On the topic ${headers[kafka.TOPIC]}")
                 .log("on the partition ${headers[kafka.PARTITION]}")
@@ -26,7 +35,7 @@ public class CamelKafkaProcessorRoute extends RouteBuilder {
 
 
         // Route to change the throttling rate
-        from("kafka:rate-limit?brokers=localhost:9092")
+        from(rateLimiterRouteURI)
                 .routeId("change-throttle-route")
                 .process(exchange ->  {
                     // Extract the new throttle rate from the exchange

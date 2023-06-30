@@ -14,13 +14,14 @@ camel:
       inputRoute:
         groupId: "groupId=input-route-group"
         enable: true
-        url: "kafka:${camel.kafka.inputTopic}}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.inputRoute.groupId}}&${camel.kafka.consumer.config}"
+        url: "kafka:${camel.kafka.inputTopic}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.inputRoute.groupId}&${camel.kafka.consumer.config}"
       rateLimiterRoute:
         groupId: "groupId=rate-limiter-route-group"
         enable: true
-        url: "kafka:${camel.kafka.rateLimiterTopic}}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.rateLimiterRoute.groupId}}&${camel.kafka.consumer.config}"
+        url: "kafka:${camel.kafka.rateLimiterTopic}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.rateLimiterRoute.groupId}&${camel.kafka.consumer.config}"
 
 route.throttling:
   throttleRate: 1
+  timePeriodMillis: 10000
 
 
