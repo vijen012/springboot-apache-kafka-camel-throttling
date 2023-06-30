@@ -1,0 +1,38 @@
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic input
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+
+bin/zookeeper-server-start.sh config/zookeeper.properties
+bin/kafka-server-start.sh config/server.properties
+
+bin/kafka-topics.sh --create --topic input --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic output --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic rate-limit --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic msg-processing-controller --bootstrap-server localhost:9092
+
+bin/kafka-topics.sh --delete --topic input --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic output --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic rate-limit --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic msg-processing-controller --bootstrap-server localhost:9092
+
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic first_topic --create --partitions 3 --replication-factor 1
+
+
+bin/kafka-console-producer.sh --topic rate-limit --bootstrap-server localhost:9092
+bin/kafka-console-producer.sh --topic msg-processing-controller --bootstrap-server localhost:9092
+bin/kafka-console-consumer.sh --topic output --from-beginning --bootstrap-server localhost:9092
+bin/kafka-console-consumer.sh --topic input --from-beginning --bootstrap-server localhost:9092
+bin/kafka-console-producer.sh --topic input --bootstrap-server localhost:9092
+
+
+//Rate limit input
+{"limitForPeriod": 1, "limitRefreshPeriod":10, "timeoutDuration":10}
+{"limitForPeriod": 2, "limitRefreshPeriod":10, "timeoutDuration":10}
+{"limitForPeriod": 1, "limitRefreshPeriod":20, "timeoutDuration":20}
+{"limitForPeriod": 1, "limitRefreshPeriod":30, "timeoutDuration":30}
+{"limitForPeriod": 1, "limitRefreshPeriod":240, "timeoutDuration":240}
+{"limitForPeriod": 1, "limitRefreshPeriod":300, "timeoutDuration":300}
+{"limitForPeriod": 1, "limitRefreshPeriod":600, "timeoutDuration":600}
+{"limitForPeriod": 1, "limitRefreshPeriod":1800, "timeoutDuration":1800}
+
+max.poll.interval.ms: 300000
+processing.guarantee = at_least_once

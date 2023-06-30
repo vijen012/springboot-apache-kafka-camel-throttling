@@ -1,0 +1,26 @@
+camel:
+  component:
+    kafka:
+      brokers: localhost:9092
+  kafka:
+    consumer:
+      autoOffsetReset: earliest #latest
+      maxPollRecords: 5
+      maxPollIntervalMs: 60000
+      config: "autoOffsetReset=${camel.kafka.consumer.autoOffsetReset}&maxPollRecords=${camel.kafka.consumer.maxPollRecords}&maxPollIntervalMs=${camel.kafka.consumer.maxPollIntervalMs}"
+    inputTopic: "input"
+    rateLimiterTopic: "rate-limit"
+    routes:
+      inputRoute:
+        groupId: "groupId=input-route-group"
+        enable: true
+        url: "kafka:${camel.kafka.inputTopic}}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.inputRoute.groupId}}&${camel.kafka.consumer.config}"
+      rateLimiterRoute:
+        groupId: "groupId=rate-limiter-route-group"
+        enable: true
+        url: "kafka:${camel.kafka.rateLimiterTopic}}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.rateLimiterRoute.groupId}}&${camel.kafka.consumer.config}"
+
+route.throttling:
+  throttleRate: 1
+
+
