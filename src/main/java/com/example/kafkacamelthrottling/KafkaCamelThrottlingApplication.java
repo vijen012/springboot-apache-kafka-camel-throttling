@@ -20,8 +20,8 @@ public class KafkaCamelThrottlingApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 		// Publish a message to the Camel route
-		for (int i = 20; i < 50; i++) {
-			publishMessageToCamelRoute.sendMessageToCamelRoute("Hello, Apache Camel!" + i);
+		for (int i = 1; i < 50; i++) {
+			//publishMessageToCamelRoute.sendMessageToCamelRoute("Hello, Apache Camel!" + i);
 		}
 	}
 }

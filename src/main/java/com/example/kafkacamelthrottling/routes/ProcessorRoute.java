@@ -4,8 +4,10 @@ import org.apache.camel.builder.RouteBuilder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import static com.example.kafkacamelthrottling.constants.ApplicatonConstant.INPUT_TOPIC_CONSUMER_ROUTE_ID;
+
 @Component
-public class CamelKafkaProcessorRoute extends RouteBuilder {
+public class ProcessorRoute extends RouteBuilder {
 
     @Value("${camel.kafka.routes.inputRoute.url}")
     private String inputRouteURI;
@@ -23,7 +25,7 @@ public class CamelKafkaProcessorRoute extends RouteBuilder {
     public void configure() throws Exception {
 
         from(inputRouteURI)
-                .routeId("input-topic-consume-route")
+                .routeId(INPUT_TOPIC_CONSUMER_ROUTE_ID)
                 .process(exchange -> exchange.getIn().setHeader("throttleRate", throttleRate))
                 .log("on the topic ${headers[throttleRate]}")
                 .throttle().expression(header("throttleRate")).timePeriodMillis(timePeriodMillis)

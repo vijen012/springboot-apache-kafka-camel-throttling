@@ -1,3 +1,5 @@
+Kakfa and Zookeeper logs directory in Mac: Macintosh HD/private(Hidden)/tmp/
+
 bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic input
 bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
 
@@ -8,11 +10,14 @@ bin/kafka-topics.sh --create --topic input --bootstrap-server localhost:9092
 bin/kafka-topics.sh --create --topic output --bootstrap-server localhost:9092
 bin/kafka-topics.sh --create --topic rate-limit --bootstrap-server localhost:9092
 bin/kafka-topics.sh --create --topic msg-processing-controller --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic camel-route-lifecycle-controller --bootstrap-server localhost:9092
+
 
 bin/kafka-topics.sh --delete --topic input --bootstrap-server localhost:9092
 bin/kafka-topics.sh --delete --topic output --bootstrap-server localhost:9092
 bin/kafka-topics.sh --delete --topic rate-limit --bootstrap-server localhost:9092
 bin/kafka-topics.sh --delete --topic msg-processing-controller --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic camel-route-lifecycle-controller --bootstrap-server localhost:9092
 
 bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic first_topic --create --partitions 3 --replication-factor 1
 
@@ -22,6 +27,8 @@ bin/kafka-console-producer.sh --topic msg-processing-controller --bootstrap-serv
 bin/kafka-console-consumer.sh --topic output --from-beginning --bootstrap-server localhost:9092
 bin/kafka-console-consumer.sh --topic input --from-beginning --bootstrap-server localhost:9092
 bin/kafka-console-producer.sh --topic input --bootstrap-server localhost:9092
+bin/kafka-console-producer.sh --topic camel-route-lifecycle-controller --bootstrap-server localhost:9092
+
 
 
 //Rate limit input
