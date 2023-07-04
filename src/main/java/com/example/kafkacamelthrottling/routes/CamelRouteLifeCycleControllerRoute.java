@@ -31,7 +31,11 @@ public class CamelRouteLifeCycleControllerRoute extends RouteBuilder {
                 .routeId("camel-route-lifecycle-controller-route")
                 .process(exchange ->  {
                     //Fetch all the routes Id
-                    //context.getRoutes().forEach(route -> System.out.println("RouteId: "+ route.getRouteId()));
+                    context.getRoutes().forEach(route -> {
+                        System.out.println("RouteId: "+ route.getRouteId());
+
+                    });
+
                     // Extract the new throttle rate from the exchange
                     String routeControlEvent = exchange.getIn().getBody().toString();
                     System.out.println("Event received: "+ routeControlEvent);

@@ -1,6 +1,8 @@
 package com.example.kafkacamelthrottling.routes;
 
+import com.example.kafkacamelthrottling.config.DynamicThrottlingRoutePolicy;
 import org.apache.camel.builder.RouteBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,12 +23,16 @@ public class ProcessorRoute extends RouteBuilder {
     @Value("${route.throttling.timePeriodMillis}")
     private int timePeriodMillis;
 
+    @Autowired
+    private DynamicThrottlingRoutePolicy dynamicThrottlingRoutePolicy;
+
     @Override
     public void configure() throws Exception {
 
         from(inputRouteURI)
                 .routeId(INPUT_TOPIC_CONSUMER_ROUTE_ID)
-                .process(exchange -> exchange.getIn().setHeader("throttleRate", throttleRate))
+                //.process(exchange -> exchange.getIn().setHeader("throttleRate", throttleRate)) //if don't use routePolicy
+                .routePolicy(dynamicThrottlingRoutePolicy)
                 .log("on the topic ${headers[throttleRate]}")
                 .throttle().expression(header("throttleRate")).timePeriodMillis(timePeriodMillis)
                 .log("Message received from Kafka: ${body}");
@@ -43,9 +49,10 @@ public class ProcessorRoute extends RouteBuilder {
                     // Extract the new throttle rate from the exchange
                     int newRate = Integer.parseInt(exchange.getIn().getBody().toString());
                     System.out.println("rate limit received: "+ newRate);
+                    dynamicThrottlingRoutePolicy.setThrottleRate(newRate);
                     // Update the throttleRate variable
-                    throttleRate = newRate;
-                    System.out.println("rate limit updated: "+ throttleRate);
+                    //throttleRate = newRate;
+                    //System.out.println("rate limit updated: "+ throttleRate);
                 });
 
 
