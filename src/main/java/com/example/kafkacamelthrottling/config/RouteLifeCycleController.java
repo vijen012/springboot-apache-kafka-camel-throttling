@@ -16,7 +16,7 @@ public class RouteLifeCycleController {
         this.camelContext = camelContext;
     }
 
-    public void resumeRoute() {
+    public void startRouteAsync() {
         System.out.println("Starting route: "+ INPUT_TOPIC_CONSUMER_ROUTE_ID);
         CompletableFuture.runAsync(() -> {
             try {
@@ -28,7 +28,7 @@ public class RouteLifeCycleController {
         });
     }
 
-    public void suspendRoute() {
+    public void stopRouteAsync() {
         System.out.println("Stopping route: "+ INPUT_TOPIC_CONSUMER_ROUTE_ID);
         CompletableFuture.runAsync(() -> {
             try {

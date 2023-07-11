@@ -53,9 +53,9 @@ public class ControlEventMessageProcessingRoute extends RouteBuilder {
     private void processMessageControlEvent(MessageProcessingEventConfigData messageProcessingEventConfigData) {
         String messageProcessControlEvent = messageProcessingEventConfigData.getMessageProcessingControlEvent().name();
         if (MessageProcessingControlEvent.START.name().equalsIgnoreCase(messageProcessControlEvent)) {
-            routeLifeCycleController.resumeRoute();
+            routeLifeCycleController.startRouteAsync();
         } else if (MessageProcessingControlEvent.STOP.name().equalsIgnoreCase(messageProcessControlEvent)) {
-            routeLifeCycleController.suspendRoute();
+            routeLifeCycleController.stopRouteAsync();
         } else if (MessageProcessingControlEvent.UPDATE_THROTTLE.name().equalsIgnoreCase(messageProcessControlEvent)) {
             System.out.println(String.format("Updating throttle-rate from %s to %s",
                     dynamicThrottlingRoutePolicy.getCurrentThrottleRate(), messageProcessingEventConfigData.getThrottleRate()));
