@@ -8,22 +8,17 @@ camel:
       maxPollRecords: 5
       maxPollIntervalMs: 60000
       config: "autoOffsetReset=${camel.kafka.consumer.autoOffsetReset}&maxPollRecords=${camel.kafka.consumer.maxPollRecords}&maxPollIntervalMs=${camel.kafka.consumer.maxPollIntervalMs}"
-    inputTopic: "input"
-    rateLimiterTopic: "rate-limit"
-    camelRouteLifeCycleControllerTopic: "camel-route-lifecycle-controller"
+    paymentInstructionTopic: "input"
+    messageProcessingControlEventTopic: "message-processing-control-event"
     routes:
-      inputRoute:
-        groupId: "groupId=input-route-group"
+      paymentInstructionProcessingRoute:
+        groupId: "groupId=payment-instruction-processing-route-group"
         enable: true
-        url: "kafka:${camel.kafka.inputTopic}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.inputRoute.groupId}&${camel.kafka.consumer.config}"
-      rateLimiterRoute:
-        groupId: "groupId=rate-limiter-route-group"
+        url: "kafka:${camel.kafka.paymentInstructionTopic}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.paymentInstructionProcessingRoute.groupId}&${camel.kafka.consumer.config}"
+      messageProcessingControlEventRoute:
+        groupId: "groupId=message-processing-control-event-group-${random.uuid}"
         enable: true
-        url: "kafka:${camel.kafka.rateLimiterTopic}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.rateLimiterRoute.groupId}&${camel.kafka.consumer.config}"
-      camelRouteLifeCycleControllerRoute:
-        groupId: "groupId=camel-route-lifecycle-controller-route-group"
-        enable: true
-        url: "kafka:${camel.kafka.camelRouteLifeCycleControllerTopic}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.camelRouteLifeCycleControllerRoute.groupId}&${camel.kafka.consumer.config}"
+        url: "kafka:${camel.kafka.messageProcessingControlEventTopic}?brokers=${camel.component.kafka.brokers}&${camel.kafka.routes.messageProcessingControlEventRoute.groupId}&${camel.kafka.consumer.config}"
 
 route.throttling:
   throttleRate: 1

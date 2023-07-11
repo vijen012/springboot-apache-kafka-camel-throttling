@@ -9,16 +9,10 @@ import org.springframework.stereotype.Component;
 import static com.example.kafkacamelthrottling.constants.ApplicatonConstant.INPUT_TOPIC_CONSUMER_ROUTE_ID;
 
 @Component
-public class ProcessorRoute extends RouteBuilder {
+public class PaymentInstructionProcessingRoute extends RouteBuilder {
 
-    @Value("${camel.kafka.routes.inputRoute.url}")
+    @Value("${camel.kafka.routes.paymentInstructionProcessingRoute.url}")
     private String inputRouteURI;
-
-    @Value("${camel.kafka.routes.rateLimiterRoute.url}")
-    private String rateLimiterRouteURI;
-
-    @Value("${route.throttling.throttleRate}")
-    private int throttleRate;
 
     @Value("${route.throttling.timePeriodMillis}")
     private int timePeriodMillis;
@@ -40,20 +34,6 @@ public class ProcessorRoute extends RouteBuilder {
                 .log("on the partition ${headers[kafka.PARTITION]}")
                 .log("with the offset ${headers[kafka.OFFSET]}")
                 .log("with the key ${headers[kafka.KEY]}");*/
-
-
-        // Route to change the throttling rate
-        from(rateLimiterRouteURI)
-                .routeId("change-throttle-route")
-                .process(exchange ->  {
-                    // Extract the new throttle rate from the exchange
-                    int newRate = Integer.parseInt(exchange.getIn().getBody().toString());
-                    System.out.println("rate limit received: "+ newRate);
-                    dynamicThrottlingRoutePolicy.setThrottleRate(newRate);
-                    // Update the throttleRate variable
-                    //throttleRate = newRate;
-                    //System.out.println("rate limit updated: "+ throttleRate);
-                });
 
 
         // ControlBus route to change the throttling rate and restart the route

@@ -1,45 +1,68 @@
-Kakfa and Zookeeper logs directory in Mac: Macintosh HD/private(Hidden)/tmp/
-
-bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic input
-bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
-
 bin/zookeeper-server-start.sh config/zookeeper.properties
 bin/kafka-server-start.sh config/server.properties
 
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --list
+bin/kafka-topics.sh --bootstrap-server localhost:9092 --describe --topic input
+
+bin/kafka-topics.sh --create --topic payment-input --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic payment-output --bootstrap-server localhost:9092
 bin/kafka-topics.sh --create --topic input --bootstrap-server localhost:9092
 bin/kafka-topics.sh --create --topic output --bootstrap-server localhost:9092
-bin/kafka-topics.sh --create --topic rate-limit --bootstrap-server localhost:9092
-bin/kafka-topics.sh --create --topic msg-processing-controller --bootstrap-server localhost:9092
-bin/kafka-topics.sh --create --topic camel-route-lifecycle-controller --bootstrap-server localhost:9092
+bin/kafka-topics.sh --create --topic message-processing-control-event --bootstrap-server localhost:9092
+
+https://docs.confluent.io/kafka/design/log_compaction.html#:~:text=Log%20compaction%20is%20is%20enabled,or%20using%20the%20alter%20command.
+bin/kafka-topics.sh --create --topic message-processing-control-event --bootstrap-server localhost:9092 \
+--partitions 1 --replication-factor 1 \
+--config cleanup.policy=compact \
+--config min.cleanable.dirty.ratio=0.005 \
+--config max.compaction.lag.ms=5000 \
+--config segment.ms=5000
+
+bin/kafka-topics.sh --create --topic message-processing-control-event --bootstrap-server localhost:9092 \
+--partitions 1 --replication-factor 1 \
+--config cleanup.policy=compact \
+--config min.cleanable.dirty.ratio=0 \
+--config delete.retention.ms=100 \
+--config segment.ms=5000 \
+--config max.compaction.lag.ms=1000
+
+bin/kafka-topics.sh --create --topic message-processing-control-event --bootstrap-server localhost:9092 \
+--partitions 1 --replication-factor 1 \
+--config cleanup.policy=delete \
+--config min.cleanable.dirty.ratio=1.0 \
+--config delete.retention.ms=100 \
+--config segment.ms=1000
 
 
+bin/kafka-topics.sh --delete --topic payment-input --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic payment-output --bootstrap-server localhost:9092
 bin/kafka-topics.sh --delete --topic input --bootstrap-server localhost:9092
 bin/kafka-topics.sh --delete --topic output --bootstrap-server localhost:9092
-bin/kafka-topics.sh --delete --topic rate-limit --bootstrap-server localhost:9092
-bin/kafka-topics.sh --delete --topic msg-processing-controller --bootstrap-server localhost:9092
-bin/kafka-topics.sh --delete --topic camel-route-lifecycle-controller --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic message-processing-control-event --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic kstream-rateLimiconfig-processor-rate-limit-store-changelog --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic kstream-rateLimiconfig-processor-rate-limit-ktable-store-changelog --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic __transaction_state --bootstrap-server localhost:9092
+bin/kafka-topics.sh --delete --topic __consumer_offsets --bootstrap-server localhost:9092
+
+
 
 bin/kafka-topics.sh --bootstrap-server localhost:9092 --topic first_topic --create --partitions 3 --replication-factor 1
 
 
-bin/kafka-console-producer.sh --topic rate-limit --bootstrap-server localhost:9092
-bin/kafka-console-producer.sh --topic msg-processing-controller --bootstrap-server localhost:9092
-bin/kafka-console-consumer.sh --topic output --from-beginning --bootstrap-server localhost:9092
-bin/kafka-console-consumer.sh --topic input --from-beginning --bootstrap-server localhost:9092
-bin/kafka-console-producer.sh --topic input --bootstrap-server localhost:9092
-bin/kafka-console-producer.sh --topic camel-route-lifecycle-controller --bootstrap-server localhost:9092
+bin/kafka-console-producer.sh --bootstrap-server localhost:9092 --topic message-processing-control-event --property "key.separator=," --property "parse.key=true"
+bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic output --from-beginning -property "key.separator=," --property "print.key=true"
 
 
-
-//Rate limit input
-{"limitForPeriod": 1, "limitRefreshPeriod":10, "timeoutDuration":10}
-{"limitForPeriod": 2, "limitRefreshPeriod":10, "timeoutDuration":10}
-{"limitForPeriod": 1, "limitRefreshPeriod":20, "timeoutDuration":20}
-{"limitForPeriod": 1, "limitRefreshPeriod":30, "timeoutDuration":30}
-{"limitForPeriod": 1, "limitRefreshPeriod":240, "timeoutDuration":240}
-{"limitForPeriod": 1, "limitRefreshPeriod":300, "timeoutDuration":300}
-{"limitForPeriod": 1, "limitRefreshPeriod":600, "timeoutDuration":600}
-{"limitForPeriod": 1, "limitRefreshPeriod":1800, "timeoutDuration":1800}
+//Rate limit input message
+event-config-key,{"messageProcessingControlEvent": "STOP"}
+event-config-key,{"messageProcessingControlEvent": "START"}
+event-config-key,{"messageProcessingControlEvent": "REVERT_THROTTLE"}
+event-config-key,{"messageProcessingControlEvent": "UPDATE_THROTTLE", "throttleRate":6}
+event-config-key,{"messageProcessingControlEvent": "UPDATE_THROTTLE", "throttleRate":5}
+event-config-key,{"messageProcessingControlEvent": "UPDATE_THROTTLE", "throttleRate":4}
+event-config-key,{"messageProcessingControlEvent": "UPDATE_THROTTLE", "throttleRate":3}
+event-config-key,{"messageProcessingControlEvent": "UPDATE_THROTTLE", "throttleRate":2}
+event-config-key,{"messageProcessingControlEvent": "UPDATE_THROTTLE", "throttleRate":1}
 
 max.poll.interval.ms: 300000
 processing.guarantee = at_least_once

@@ -3,6 +3,8 @@ package com.example.kafkacamelthrottling.config;
 import org.apache.camel.CamelContext;
 import org.springframework.stereotype.Component;
 
+import java.util.concurrent.CompletableFuture;
+
 import static com.example.kafkacamelthrottling.constants.ApplicatonConstant.INPUT_TOPIC_CONSUMER_ROUTE_ID;
 
 @Component
@@ -16,29 +18,25 @@ public class RouteLifeCycleController {
 
     public void resumeRoute() {
         System.out.println("Starting route: "+ INPUT_TOPIC_CONSUMER_ROUTE_ID);
-        try {
-            if (!camelContext.getRouteController().getRouteStatus(INPUT_TOPIC_CONSUMER_ROUTE_ID).isStarted()) {
-                camelContext.getRouteController().resumeRoute(INPUT_TOPIC_CONSUMER_ROUTE_ID);
-            } else {
-                System.out.println("Route already running...");
+        CompletableFuture.runAsync(() -> {
+            try {
+                camelContext.getRouteController().startRoute(INPUT_TOPIC_CONSUMER_ROUTE_ID);
+                System.out.println("Route started..."+ INPUT_TOPIC_CONSUMER_ROUTE_ID);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 
     public void suspendRoute() {
         System.out.println("Stopping route: "+ INPUT_TOPIC_CONSUMER_ROUTE_ID);
-        try {
-            if (!camelContext.getRouteController().getRouteStatus(INPUT_TOPIC_CONSUMER_ROUTE_ID).isSuspended()) {
-                camelContext.getRouteController().suspendRoute(INPUT_TOPIC_CONSUMER_ROUTE_ID);
-            } else {
-                System.out.println("Route already suspended...");
+        CompletableFuture.runAsync(() -> {
+            try {
+                camelContext.getRouteController().stopRoute(INPUT_TOPIC_CONSUMER_ROUTE_ID);
+                System.out.println("Route stopped..."+ INPUT_TOPIC_CONSUMER_ROUTE_ID);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 }
